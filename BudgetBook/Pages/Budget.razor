@@ -1,0 +1,76 @@
+﻿@page "/"
+@page "/budget"
+@using BudgetBook.Data
+@inject BudgetBookService budgetBoolService
+
+<h3>Budget</h3>
+
+<form>
+	<div class="row">
+		<div class="col">
+			<label class="control-label">Description</label>
+			<input classs="form-control" @bind="@entry.Description" />
+		</div>
+		<div class="col">
+			<label class="control-label">Amount</label>
+			<input classs="form-control" @bind="@entry.Amount" />
+		</div>
+	</div>
+	<div class="row mt-2">
+		<div class="col">
+			<button class="btn btn-primary" onclick="@CreateEntry">
+				Add
+			</button>
+		</div>
+	</div>
+</form>
+
+<hr />
+
+<table class="table table-striped table-bordered">
+	<thead class="table-dark">
+		<tr>
+			<th>Description</th>
+			<th>Amount</th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach(var e in allEntries)
+		{
+			<tr>
+				<th>@e.Description</th>
+				<th>$@e.Amount</th>
+			</tr>
+		}
+	</tbody>
+	<tfoot class="table-dark">
+		<tr>
+			<th>Total</th>
+			<th>$@sum</th>
+		</tr>
+	</tfoot>
+</table>
+
+
+
+@code {
+	List<Entry> allEntries = new List<Entry>();
+
+	Entry entry = new Entry();
+	decimal sum = 0;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+
+		allEntries = await budgetBoolService.GetAllEntries();
+
+		foreach (var e in allEntries)
+			sum += e.Amount;
+	}
+
+	protected async void CreateEntry()
+	{
+		budgetBoolService.AddEntry(entry);
+	}
+}
